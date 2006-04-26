@@ -3,7 +3,7 @@
 #BEGIN { $Exporter::Verbose=1 }
 
 package Spread::Message;
-our $VERSION = 0.2;
+our $VERSION = 0.21;
 use Spread qw(:SP :ERROR :MESS);
 use Data::Dumper;
 use Carp qw/cluck/;
@@ -621,7 +621,7 @@ sub send
 	my $rtn = 0;
 	if(length($msg) > 100 * 1024)
 	{
-		warn "send -- message big [", length($msg), "] chopping\n";
+		warn "send -- message big [", length($msg), "] chopping\n" if $self->debug;
 
 		my $size = 90 * 1024;
 		# Chop into 90K chunks and gather left overs as well :-)
@@ -640,13 +640,13 @@ sub send
 
 	unless(defined $rtn)
 	{
-		print "Failed to send data - $sperrno\n";
+		warn "Failed to send data - $sperrno\n";
 		return 0;
 	}
 
 	if($self->debug)
 	{
-		print "Sent ", $msg,"\n";
+		warn "Sent ", $msg,"\n";
 	}
 
 	return $rtn;
@@ -710,7 +710,7 @@ sub logit (@)
 	my @to = $self->logto;
 	unless(@to)
 	{
-		print $prepend,@_;
+		warn $prepend,@_;
 		return;
 	}
 	
@@ -1037,36 +1037,36 @@ sub getmsg
 		# Regular message?
 		if($self->Is_regular_mess)
 		{
-			print "** Regular Message received **\n";
-			print "Service Type     : ",$self->type,"\n";
-			print "Sender           : ",$self->sender,"\n";
-			print "Sent to          : ", CORE::join(",",@grps),"\n";
-			print "Message Type     : ",$self->mess_type,"\n";
-			print "Endian Missmatch : ",$self->endian ? "Yes" : "No" ,"\n";
-			print "I am             : ",$self->me,"\n";
-			print "Message          : ",$self->msg,"\n" if $self->debug > 1;
+			warn "** Regular Message received **\n";
+			warn "Service Type     : ",$self->type,"\n";
+			warn "Sender           : ",$self->sender,"\n";
+			warn "Sent to          : ", CORE::join(",",@grps),"\n";
+			warn "Message Type     : ",$self->mess_type,"\n";
+			warn "Endian Missmatch : ",$self->endian ? "Yes" : "No" ,"\n";
+			warn "I am             : ",$self->me,"\n";
+			warn "Message          : ",$self->msg,"\n" if $self->debug > 1;
 		}
 		elsif($self->Is_membership_mess) # membership message
 		{
 			
-			print "** Membership Message received **\n";
-			print "Service Type     : ",$self->type,"\n";
-			print "For group        : ",$self->sender,"\n";
-			print "Sent to          : ", CORE::join(",",@grps),"\n";
-			print "I member number  : ",$self->mess_type,"\n";
-			print "Endian Missmatch : ",$self->endian ? "Yes" : "No" ,"\n";
-			print "I am             : ",$self->me,"\n";
+			warn "** Membership Message received **\n";
+			warn "Service Type     : ",$self->type,"\n";
+			warn "For group        : ",$self->sender,"\n";
+			warn "Sent to          : ", CORE::join(",",@grps),"\n";
+			warn "I member number  : ",$self->mess_type,"\n";
+			warn "Endian Missmatch : ",$self->endian ? "Yes" : "No" ,"\n";
+			warn "I am             : ",$self->me,"\n";
 		}
 		else
 		{
-			print "** Unknown Message received **\n";
-			print "Service Type     : ",$self->type,"\n";
-			print "Sender           : ",$self->sender,"\n";
-			print "Sent to          : ", CORE::join(",",@grps),"\n";
-			print "Message Type     : ",$self->mess_type,"\n";
-			print "Endian Missmatch : ",$self->endian ? "Yes" : "No" ,"\n";
+			warn "** Unknown Message received **\n";
+			warn "Service Type     : ",$self->type,"\n";
+			warn "Sender           : ",$self->sender,"\n";
+			warn "Sent to          : ", CORE::join(",",@grps),"\n";
+			warn "Message Type     : ",$self->mess_type,"\n";
+			warn "Endian Missmatch : ",$self->endian ? "Yes" : "No" ,"\n";
 			print "I am             : ",$self->me,"\n";
-			print "Message          : ",$self->msg,"\n" if $self->debug > 1;
+			warn "Message          : ",$self->msg,"\n" if $self->debug > 1;
 		}
 	}
 
@@ -1101,8 +1101,8 @@ sub getmsg
 		$txt = "Network change"     if $self->Is_caused_network_mess;
 		if($self->debug)
 		{
-			print "groupID = @gid, Num grps in msg = $numg\n";
-			print $txt,"\n";
+			warn "groupID = @gid, Num grps in msg = $numg\n";
+			warn $txt,"\n";
 		}
 	}
 	elsif($self->Is_transition_mess)
@@ -1810,7 +1810,7 @@ sub clone
 }
 
 
-=head1 Bugs and othet stuff
+=head1 Bugs and other stuff
 
 There are bound to be bugs in this code. It is first cut code that even
 though used extensively hasn't been used broadly. By that I mean, the
@@ -1825,6 +1825,8 @@ Please note: I have no affiliation with The Spread Group Communication
 Toolkit. I also know next to nothing about messaging and group
 communication, so dont' ask me about these things.
 
+This module is offered in good faith as is.
+
 =cut
 
 =head1 TODO
@@ -1837,10 +1839,12 @@ Lots-n-lots
 
 Copyright 2003-2006, Mark Pfeiffer
 
-This code may be copied only under the terms of the Artistic License
+This code may be copied only under the terms of the Artistic License or
+the GNU General Public License, version 2 or later
 which may be found in the Perl 5 source kit.
 
 Use 'perldoc perlartistic' to see the Artistic License.
+Use 'perldoc perlgpl' to see the GPL License.
 
 Complete documentation for Perl, including FAQ lists, should be found on
 this system using `man perl' or `perldoc perl'.  If you have access to the
